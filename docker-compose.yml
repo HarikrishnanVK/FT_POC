@@ -1,0 +1,74 @@
+# To execute this docker-compose yml file use `docker-compose -f docker-compose-v3-dev-channel.yml up`
+# Add the `-d` flag at the end for detached execution
+# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3-dev-channel.yml down`
+version: "3"
+services:
+  HubService:
+    image: selenium/hub:3.141.59
+    container_name: seleniumHub
+    ports:
+      - "4445:4444"
+    environment:
+      - GRID_MAX_SESSION=20
+
+  ChromeService:
+    image: selenium/node-chrome-debug:3.141.59
+    container_name: chromeNode
+    ports:
+      - "4446:5900"
+    environment:
+      - HUB_HOST=seleniumHub
+      - HUB_PORT=4444
+      # No of parallels with in a node
+      - NODE_MAX_INSTANCES=20
+      # To limit the number of parallels
+      - NODE_MAX_SESSION=20
+    depends_on:
+      - HubService
+  
+  FirefoxService:
+    image: selenium/node-firefox-debug:3.141.59
+    container_name: firefoxNode
+    ports:
+      - "4447:5900"
+    environment:
+      - HUB_HOST=seleniumHub
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=20
+      - NODE_MAX_SESSION=20
+    depends_on:
+      - HubService
+  
+  HubService2:
+    image: selenium/hub:3.141.59
+    container_name: seleniumHub2
+    ports:
+      - "4455:4444"
+    environment:
+      - GRID_MAX_SESSION=20
+
+  ChromeService2:
+    image: selenium/node-chrome-debug:3.141.59
+    container_name: chromeNode2
+    ports:
+      - "4456:5900"
+    environment:
+      - HUB_HOST=seleniumHub2
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=20
+      - NODE_MAX_SESSION=20
+    depends_on:
+      - HubService2
+  
+  FirefoxService2:
+    image: selenium/node-firefox-debug:3.141.59
+    container_name: firefoxNode2
+    ports:
+      - "4457:5900"
+    environment:
+      - HUB_HOST=seleniumHub2
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=20
+      - NODE_MAX_SESSION=20
+    depends_on:
+      - HubService2
