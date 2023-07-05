@@ -14,7 +14,6 @@ export let config: Config = {
         silent: true
     },
     allScriptsTimeout: 30000,
-    // seleniumAddress: 'http://localhost:4455/wd/hub',
     multiCapabilities: [
         {
             seleniumAddress: 'http://localhost:4445/wd/hub',
@@ -54,6 +53,8 @@ export let config: Config = {
   //   //protractor conf.js calc,bank
   //   //protractor conf.js bothtest
   // },
+
+  // specs: ["specs2/TabOrderSpec.js"],
 
 
   onPrepare: () => {

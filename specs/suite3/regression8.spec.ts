@@ -1,60 +1,46 @@
-
-import {browser, element, by, By, $, $$, ExpectedConditions} from 'protractor';
-import protractor = require('protractor');
+import { browser, element, by } from "protractor";
 import { log4jsconfig } from '../../config/log4jsconfig'
+import { common } from "../../util/common";
 
-
-describe("08 Calculator test", function(){
-
-    var firstNumber = element(by.model('first'));
-    var secondNumber = element(by.model('second'));
-    var goButton = element(by.id('gobutton'));
-    var history = element.all(by.repeater('result in memory'));
-    let value = element(by.xpath("//*[@class='table']/tbody//tr[1]/td[3]"));
-  
-    function add(a:any, b:any) {
-      firstNumber.sendKeys(a);
-      secondNumber.sendKeys(b);
-      goButton.click();
-    }
+describe("[always] Handle multiple windows", function(){
 
     beforeEach(function(){
-        browser.get("https://juliemr.github.io/protractor-demo/");
-        browser.ignoreSynchronization = true
+        //browser.ignoreSynchronization = true;
+        new common().isAngular(false);
+        browser.get("https://qavbox.github.io/demo/links/");
     })
 
-    it("Launch url check", function(){
-        expect(browser.getTitle()).toContain("Super");
-        //console.log("Browser Title :-" + browser.getTitle());
-        let browserTitle = browser.getTitle();
+    it("Multiple windows handle", function(){
+        browser.getTitle().then(function(txt){
+            console.log("Main browser title :- "+ txt);
+        })
 
-        browserTitle.then(function(txt){
-            console.log("Browser Title :-" + txt);
-            log4jsconfig.Log().debug("Browser Title :- " + txt);
-        });
+        browser.findElement(by.name("NewTab")).click();
+
+        let windowHandles = browser.getAllWindowHandles();
+        let parentHandle, childHandle;
+
+        windowHandles.then(function(handles){
+            parentHandle = handles[0];
+            childHandle = handles[1];
+            console.log("Total Handles :- " + handles.length);
+            
+            browser.switchTo().window(childHandle).then(function(){
+                browser.getTitle().then(function(txt){
+                    console.log("Child browser title :- " + txt);
+                    browser.close();
+                })
+            })
+
+            browser.switchTo().window(parentHandle).then(function(){
+                console.log("Returning to main windows...");
+                browser.getTitle().then(function(txt){
+                    console.log("Main browser title :- "+ txt);
+                })
+            })
+
+        })
 
     })
-
-    it("Add 2 numbers", function(){
-        element(by.model("first")).sendKeys("12");
-        element(by.model("second")).sendKeys("13");
-        element(by.id("gobutton")).click();
-        browser.sleep(3000);
-        expect<any>(element(by.xpath("//table/tbody/tr[1]/td[3]")).getText()).toEqual('25');
-    })
-
-    it('should add correctly', function() {
-        add(1, 2);
-        browser.sleep(3000);
-        expect<any>(value.getText()).toEqual('3');
-      })
-    
-      it('should have a history', function() {
-        add(3, 4);
-        browser.sleep(3000);
-        add(5, 6);
-        browser.sleep(3000);
-        expect<any>(history.count()).toEqual(2);
-      })
 
 })

@@ -1,60 +1,37 @@
-
 import {browser, element, by, By, $, $$, ExpectedConditions} from 'protractor';
 import protractor = require('protractor');
 import { log4jsconfig } from '../../config/log4jsconfig'
 
 
-describe("10 Calculator test", function(){
+describe("[always] TabOrder test", function(){
 
-    var firstNumber = element(by.model('first'));
-    var secondNumber = element(by.model('second'));
-    var goButton = element(by.id('gobutton'));
-    var history = element.all(by.repeater('result in memory'));
-    let value = element(by.xpath("//*[@class='table']/tbody//tr[1]/td[3]"));
+    var userName = element(by.id('username'));
+    var email = element(by.id('email'));
+    var telePhone = element(by.id('tel'));
+    var uploadbtn = element(by.name('datafile'));
+ 
   
-    function add(a:any, b:any) {
-      firstNumber.sendKeys(a);
-      secondNumber.sendKeys(b);
-      goButton.click();
+    async function tabOrder() {
+     var pageEls = [userName, email, telePhone, uploadbtn];
+     return pageEls;
     }
 
     beforeEach(function(){
-        browser.get("https://juliemr.github.io/protractor-demo/");
-        browser.ignoreSynchronization = true
+        browser.get("https://qavbox.github.io/demo/signup/");
     })
 
-    it("Launch url check", function(){
-        expect(browser.getTitle()).toContain("Super");
-        //console.log("Browser Title :-" + browser.getTitle());
-        let browserTitle = browser.getTitle();
+    it("verify the order", async function(){
+        
+        var els = await tabOrder();
+        userName.click();
+        console.log("Total elements size "+ els.length);
 
-        browserTitle.then(function(txt){
-            console.log("Browser Title :-" + txt);
-            log4jsconfig.Log().debug("Browser Title :- " + txt);
-        });
-
+        //skipping the last element, as I don't want to TAB on last element
+        for(var i=0; i < (els.length-1) ; i++){
+            console.log("before Tab - " + await els[i].getId());
+            await els[i].sendKeys(protractor.Key.TAB);
+            console.log("After tab - " + await (await browser.switchTo().activeElement()).getId());
+            expect(els[i+1].getId()).toBe((await browser.switchTo().activeElement()).getId());
+        }
     })
-
-    it("Add 2 numbers", function(){
-        element(by.model("first")).sendKeys("12");
-        element(by.model("second")).sendKeys("13");
-        element(by.id("gobutton")).click();
-        browser.sleep(3000);
-        expect<any>(element(by.xpath("//table/tbody/tr[1]/td[3]")).getText()).toEqual('25');
-    })
-
-    it('should add correctly', function() {
-        add(1, 2);
-        browser.sleep(3000);
-        expect<any>(value.getText()).toEqual('3');
-      })
-    
-      it('should have a history', function() {
-        add(3, 4);
-        browser.sleep(3000);
-        add(5, 6);
-        browser.sleep(3000);
-        expect<any>(history.count()).toEqual(2);
-      })
-
 })
